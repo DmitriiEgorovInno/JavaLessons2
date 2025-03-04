@@ -18,17 +18,18 @@ public class UserService implements CommandLineRunner {
         return userRepository.findAll();
     }
 
-  public User findUserByName(String name){
-        return userRepository.findUserByName(name).orElseThrow(EntityNotFoundException::new);
 
-  }
-  public void createUser(String name){
+    public User findUserByName(String name){
+        return userRepository.findUserByName(name);
+
+    }
+    public void createUser(String name){
        userRepository.createUser(name);
-  }
-public void deleteUserByName(String name){
+    }
+    public void deleteUserByName(String name){
         userRepository.deleteUserByName(name);
 }
-public void deleteAllUsers(){
+    public void deleteAllUsers(){
         userRepository.deleteAllUsers();
 }
 
@@ -38,9 +39,9 @@ public void deleteAllUsers(){
         createUser("user_6");
         findAll().forEach(System.out::println);
         System.out.println(findUserByName("user_1"));
-        deleteUserByName("user_2");
+        //deleteUserByName("user_2");
         findAll().forEach((System.out::println));
-        deleteAllUsers();
+        //deleteAllUsers();
         findAll().forEach((System.out::println));
 
     }
