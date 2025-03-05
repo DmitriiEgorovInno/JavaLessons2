@@ -18,7 +18,7 @@ import java.util.Optional;
 @Slf4j
 @Service
 
-public class ProductService implements CommandLineRunner {
+public class ProductService {
     public final ProductRepository productRepository;
     public final UserRepository userRepository;
 
@@ -44,13 +44,6 @@ public class ProductService implements CommandLineRunner {
     public List<Product> findByUser(User user){
         return productRepository.findByUser(user);
     }
-    @Override
-    public void run(String... args) throws Exception {
-        Product product = findById(6l);
-        log.info("Продукт: {}",product);
 
-        User user = userRepository.findUserByName("user_2");
-        findByUser(user).forEach(System.out::println);
-    }
 }
 

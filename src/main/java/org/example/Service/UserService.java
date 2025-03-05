@@ -11,18 +11,20 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService implements CommandLineRunner {
+public class UserService {
     private final UserRepository userRepository;
 
     public List<User> findAll(){
         return userRepository.findAll();
     }
 
-
-    public User findUserByName(String name){
-        return userRepository.findUserByName(name);
-
+    public User save(User user){
+        return userRepository.save(user);
     }
+    public User findById(Long id){
+        return userRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+    }
+
     public void createUser(String name){
        userRepository.createUser(name);
     }
@@ -33,16 +35,5 @@ public class UserService implements CommandLineRunner {
         userRepository.deleteAllUsers();
 }
 
-    @Override
-    public void run(String... args){
-        findAll().forEach(System.out::println);
-        createUser("user_6");
-        findAll().forEach(System.out::println);
-        System.out.println(findUserByName("user_1"));
-        //deleteUserByName("user_2");
-        findAll().forEach((System.out::println));
-        //deleteAllUsers();
-        findAll().forEach((System.out::println));
 
-    }
 }
