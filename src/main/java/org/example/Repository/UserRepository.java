@@ -15,9 +15,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User,Long> {
     Optional<User> findUserByName(String name);
 
-    public void deleteById(Long id);
-    public List<User> findAll();
-    public User save(User user);
+
     @Modifying
     @Transactional
     @Query(value = "insert into users (name) values (:name)", nativeQuery = true)
