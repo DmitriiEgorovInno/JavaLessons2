@@ -22,3 +22,6 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: none
+product:
+  service:
+    url: http://localhost:9000/api/v1/

@@ -43,15 +43,17 @@ public class ProductController {
         List<Product> products = productService.findByUser(userService.findById(userID));
         return new ProductResponse(products);
     }
-
     @ExceptionHandler(EmptyResultDataAccessException.class)
-    public ResponseEntity<ErrorResponse> handleEmptyResultDataAccessException(EmptyResultDataAccessException e){
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public ErrorResponse handleEmptyResultDataAccessException(EmptyResultDataAccessException e){
         ErrorResponse errorResponse=new ErrorResponse("Продукт не найден");
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(errorResponse);
+        return errorResponse;
     }
 
-    public  ResponseEntity<ErrorResponse> handleExceptio(Exception e){
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public  ErrorResponse handleExceptio(Exception e){
         ErrorResponse errorResponse = new ErrorResponse("Ошибка Product.Service "+ e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        return errorResponse;
     }
 }

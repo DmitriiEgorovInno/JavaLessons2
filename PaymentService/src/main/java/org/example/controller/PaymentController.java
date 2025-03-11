@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import org.example.PaymentService.PaymentService;
 import org.example.model.ErrorResponse;
 import org.example.model.PaymentRequest;
 import org.example.model.Product;
@@ -21,45 +22,31 @@ import java.util.Optional;
 @RequestMapping(value = "/pay")
 public class PaymentController {
 
-    @Autowired
-    private RestTemplate restTemplate;
 
     @Value("${product.service.url}")
     private String productServiceUrl;
 
-    @GetMapping(value = "/products/{prodId}")
-    public ResponseEntity<ProductResponse> payForProduct(@PathVariable("prodId") Long prodId){
-        String url= productServiceUrl+prodId;
-        ResponseEntity<ProductResponse> response = restTemplate.getForEntity(url, ProductResponse.class);
-        if (response.getStatusCode()== HttpStatus.OK){
-            return response;
-        } else if (response.getStatusCode()==HttpStatus.NO_CONTENT) {
-            throw new RestClientException("Продукт с ID "+ prodId + " не найден");
-        } else {
-            throw new RestClientException("Ошибка получения продукта с id "+prodId);
-        }
-    }
+    private final PaymentService paymentService;
 
+    public PaymentController(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+    @GetMapping(value = "/products/{prodId}")
+    public ProductResponse payForProduct(@PathVariable("prodId") Long prodId){
+        ProductResponse response = paymentService.payForProduct(prodId);
+        return response;
+    }
     @PostMapping(value = "/newPayment")
-    public ResponseEntity<?> newPayment(@RequestBody PaymentRequest paymentRequest){
-        String url = productServiceUrl+"user?userID="+paymentRequest.getUser().getId();
-        ResponseEntity<ProductResponse> response = restTemplate.getForEntity(url, ProductResponse.class);
-        if (response.getStatusCode()==HttpStatus.OK){
-            ProductResponse product = response.getBody();
-            if (product.products().getFirst().getBalance().compareTo(paymentRequest.getAmmount())<0){
-                throw new RestClientException("Недостаточно средств");
-            }else {
-                return ResponseEntity.ok("Платеж успешно проведен");
-            }
-        } else {
-            throw new RestClientException("Нет продукта с таким юзером");
-        }
+    public String newPayment(@RequestBody PaymentRequest paymentRequest){
+        String result = paymentService.newPayment(paymentRequest);
+        return result;
     }
 
     @ExceptionHandler(RestClientException.class)
-    public ResponseEntity<ErrorResponse> handleRestClientExceptio(RestClientException e){
-        ErrorResponse errorResponse = new ErrorResponse("Ошибка ProductService: "+ e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    public ErrorResponse handleRestClientExceptio(RestClientException e){
+        ErrorResponse errorResponse = new ErrorResponse("Ошибка PaymentService: "+ e.getMessage());
+        return errorResponse;
 
     }
 
