@@ -40,10 +40,15 @@ public class ProductService {
 
     }
 
-
+    public Product findByUserAndAccount(User user,String account){
+        return productRepository.findByUserAndAccount(user,account);
+    }
     public List<Product> findByUser(User user){
         return productRepository.findByUser(user);
     }
 
+    public int updateBalance(Long prodId,BigDecimal balance){
+        return productRepository.updateBalance(balance,prodId);
+    }
 }
 

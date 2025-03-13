@@ -1,5 +1,6 @@
 package org.example.PaymentService;
 
+import org.example.model.OneProductResponse;
 import org.example.model.PaymentRequest;
 import org.example.model.ProductResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,36 +13,39 @@ import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URI;
+
 @Service
 public class PaymentService {
 
     private final RestTemplate restTemplate;
-
-    @Value("${product.service.url}")
-    private String productServiceUrl;
 
     public PaymentService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
     public ProductResponse payForProduct(Long prodId) {
-        String url = productServiceUrl + prodId;
-        ProductResponse response = restTemplate.getForObject(url, ProductResponse.class);
+        ProductResponse response = restTemplate.getForObject("/api/v1/"+prodId, ProductResponse.class);
         return response;
     }
-    public String newPayment(PaymentRequest paymentRequest) {
-        String url = productServiceUrl + "user?userID=" + paymentRequest.getUser().getId();
-        ProductResponse response = null;
+
+    public OneProductResponse newPayment(PaymentRequest paymentRequest) {
+
+        OneProductResponse response = null;
         try {
-            response = restTemplate.getForObject(url, ProductResponse.class);
+            response = restTemplate.getForObject("/api/v1/user?userID="+paymentRequest.getUser().getId()+"&account="+paymentRequest.getAccount(), OneProductResponse.class);
+
         } catch (HttpServerErrorException | HttpClientErrorException httpClientOrServExc) {
             if (HttpStatus.INTERNAL_SERVER_ERROR.equals(httpClientOrServExc.getStatusCode()))
                 throw new RestClientException("Нет продукта с таким юзером");
         }
-        if (response.products().getFirst().getBalance().compareTo(paymentRequest.getAmmount()) < 0) {
+        if (response.product().getBalance().compareTo(paymentRequest.getAmmount()) < 0) {
             throw new RestClientException("Недостаточно средств");
         } else {
-            return "Платеж успешно проведен";
+            restTemplate.getForObject("/api/v1/product?prodId="+response.product().getId()+"&balance="+response.product().getBalance().subtract(paymentRequest.getAmmount()),int.class);
+            response = restTemplate.getForObject("/api/v1/user?userID="+paymentRequest.getUser().getId()+"&account="+paymentRequest.getAccount(), OneProductResponse.class);
+            return response;
+
         }
     }
 

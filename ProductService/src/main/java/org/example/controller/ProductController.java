@@ -6,6 +6,7 @@ import org.example.Entity.User;
 import org.example.Service.ProductService;
 import org.example.Service.UserService;
 import org.example.dto.ErrorResponse;
+import org.example.dto.OneProductResponse;
 import org.example.dto.ProductResponse;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 
@@ -38,11 +40,22 @@ public class ProductController {
         return new ProductResponse(Collections.singletonList(product));
 
     }
-    @GetMapping("/user")
+    @GetMapping("/users")
     public ProductResponse findByUser(@RequestParam("userID") Long userID){
         List<Product> products = productService.findByUser(userService.findById(userID));
         return new ProductResponse(products);
     }
+
+    @GetMapping("/user")
+    public OneProductResponse getByUserAndAccount(@RequestParam("userID") Long userID,@RequestParam("account") String account){
+        Product product = productService.findByUserAndAccount(userService.findById(userID),account);
+        return new OneProductResponse(product);
+    }
+    @GetMapping("/product")
+    public int updateBalance(@RequestParam("prodId") Long prodId, @RequestParam("balance") BigDecimal balance){
+        return productService.updateBalance(prodId,balance);
+    }
+
     @ExceptionHandler(EmptyResultDataAccessException.class)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public ErrorResponse handleEmptyResultDataAccessException(EmptyResultDataAccessException e){

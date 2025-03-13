@@ -1,10 +1,7 @@
 package org.example.controller;
 
 import org.example.PaymentService.PaymentService;
-import org.example.model.ErrorResponse;
-import org.example.model.PaymentRequest;
-import org.example.model.Product;
-import org.example.model.ProductResponse;
+import org.example.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
@@ -23,25 +20,25 @@ import java.util.Optional;
 public class PaymentController {
 
 
-    @Value("${product.service.url}")
-    private String productServiceUrl;
+   // @Value("${product.service.url}")
 
     private final PaymentService paymentService;
 
     public PaymentController(PaymentService paymentService) {
-        this.paymentService = paymentService;
+        this.paymentService=paymentService;
     }
+
+
     @GetMapping(value = "/products/{prodId}")
     public ProductResponse payForProduct(@PathVariable("prodId") Long prodId){
         ProductResponse response = paymentService.payForProduct(prodId);
         return response;
     }
-    @PostMapping(value = "/newPayment")
-    public String newPayment(@RequestBody PaymentRequest paymentRequest){
-        String result = paymentService.newPayment(paymentRequest);
+    @PostMapping(value = "/payment")
+    public OneProductResponse newPayment(@RequestBody PaymentRequest paymentRequest){
+        OneProductResponse result = paymentService.newPayment(paymentRequest);
         return result;
     }
-
     @ExceptionHandler(RestClientException.class)
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ErrorResponse handleRestClientExceptio(RestClientException e){
