@@ -1,4 +1,4 @@
 package org.example.dto;
 
-public record ErrorResponse(String message) {
+public record ErrorResponse(String message,String externalSystemCode) {
 }

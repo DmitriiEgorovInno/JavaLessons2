@@ -19,15 +19,11 @@ import java.util.Optional;
 @RequestMapping(value = "/pay")
 public class PaymentController {
 
-
-   // @Value("${product.service.url}")
-
     private final PaymentService paymentService;
 
     public PaymentController(PaymentService paymentService) {
         this.paymentService=paymentService;
     }
-
 
     @GetMapping(value = "/products/{prodId}")
     public ProductResponse payForProduct(@PathVariable("prodId") Long prodId){
@@ -39,13 +35,4 @@ public class PaymentController {
         OneProductResponse result = paymentService.newPayment(paymentRequest);
         return result;
     }
-    @ExceptionHandler(RestClientException.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleRestClientExceptio(RestClientException e){
-        ErrorResponse errorResponse = new ErrorResponse("Ошибка PaymentService: "+ e.getMessage());
-        return errorResponse;
-
-    }
-
-
 }

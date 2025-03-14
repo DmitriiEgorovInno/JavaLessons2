@@ -1,5 +1,6 @@
 package org.example.PaymentService;
 
+import org.example.exception.PaymentException;
 import org.example.model.OneProductResponse;
 import org.example.model.PaymentRequest;
 import org.example.model.ProductResponse;
@@ -14,6 +15,9 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.URI;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class PaymentService {
@@ -29,24 +33,22 @@ public class PaymentService {
         return response;
     }
 
+    public OneProductResponse getProdByAccount(String account){
+        Map<String,String> params= Collections.singletonMap("account",account);
+        return restTemplate.getForObject("/api/v1/user?account={account}",OneProductResponse.class,params);
+    }
+
     public OneProductResponse newPayment(PaymentRequest paymentRequest) {
-
-        OneProductResponse response = null;
-        try {
-            response = restTemplate.getForObject("/api/v1/user?userID="+paymentRequest.getUser().getId()+"&account="+paymentRequest.getAccount(), OneProductResponse.class);
-
-        } catch (HttpServerErrorException | HttpClientErrorException httpClientOrServExc) {
-            if (HttpStatus.INTERNAL_SERVER_ERROR.equals(httpClientOrServExc.getStatusCode()))
-                throw new RestClientException("Нет продукта с таким юзером");
+        OneProductResponse product = getProdByAccount(paymentRequest.getAccount());
+        if (product.product().getBalance().compareTo(paymentRequest.getAmmount())<0){
+            throw new PaymentException("Недостаточно средств для совершения платежа","402 PAYMENT_DECLINED");
         }
-        if (response.product().getBalance().compareTo(paymentRequest.getAmmount()) < 0) {
-            throw new RestClientException("Недостаточно средств");
-        } else {
-            restTemplate.getForObject("/api/v1/product?prodId="+response.product().getId()+"&balance="+response.product().getBalance().subtract(paymentRequest.getAmmount()),int.class);
-            response = restTemplate.getForObject("/api/v1/user?userID="+paymentRequest.getUser().getId()+"&account="+paymentRequest.getAccount(), OneProductResponse.class);
-            return response;
-
-        }
+        Map<String,String> params = new HashMap<>();
+        params.put("prodId",String.valueOf(product.product().getId()));
+        params.put("balance",String.valueOf(product.product().getBalance().subtract(paymentRequest.getAmmount())));
+        restTemplate.getForObject("/api/v1/product?prodId={prodId}&balance={balance}",OneProductResponse.class,params);
+        product = getProdByAccount(paymentRequest.getAccount());
+        return product;
     }
 
 }

@@ -47,26 +47,11 @@ public class ProductController {
     }
 
     @GetMapping("/user")
-    public OneProductResponse getByUserAndAccount(@RequestParam("userID") Long userID,@RequestParam("account") String account){
-        Product product = productService.findByUserAndAccount(userService.findById(userID),account);
-        return new OneProductResponse(product);
+    public OneProductResponse getByAccount(@RequestParam("account") String account){
+        return productService.findByUserAndAccount(account);
     }
     @GetMapping("/product")
-    public int updateBalance(@RequestParam("prodId") Long prodId, @RequestParam("balance") BigDecimal balance){
-        return productService.updateBalance(prodId,balance);
-    }
-
-    @ExceptionHandler(EmptyResultDataAccessException.class)
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public ErrorResponse handleEmptyResultDataAccessException(EmptyResultDataAccessException e){
-        ErrorResponse errorResponse=new ErrorResponse("Продукт не найден");
-        return errorResponse;
-    }
-
-    @ExceptionHandler
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public  ErrorResponse handleExceptio(Exception e){
-        ErrorResponse errorResponse = new ErrorResponse("Ошибка Product.Service "+ e.getMessage());
-        return errorResponse;
+    public void updateBalance(@RequestParam("prodId") Long prodId, @RequestParam("balance") BigDecimal balance){
+        productService.updateBalance(prodId,balance);
     }
 }

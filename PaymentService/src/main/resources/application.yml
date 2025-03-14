@@ -22,6 +22,7 @@ spring:
     open-in-view: false
     hibernate:
       ddl-auto: none
-product:
-  service:
-    url: http://localhost:9000/api/v1/
+integration:
+  clients:
+    payments-client:
+      uri: "http://localhost:9000"

@@ -9,6 +9,8 @@ import org.example.Entity.ProductType;
 import org.example.Entity.User;
 import org.example.Repository.ProductRepository;
 import org.example.Repository.UserRepository;
+import org.example.dto.OneProductResponse;
+import org.example.exception.NoDataFoundException;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
 
@@ -40,15 +42,16 @@ public class ProductService {
 
     }
 
-    public Product findByUserAndAccount(User user,String account){
-        return productRepository.findByUserAndAccount(user,account);
+    public OneProductResponse findByUserAndAccount(String account){
+        Product product = productRepository.findByAccount(account).orElseThrow(()->new NoDataFoundException("Продукт не найден","NOt_FOUND"));
+        return new OneProductResponse(product);
     }
     public List<Product> findByUser(User user){
         return productRepository.findByUser(user);
     }
 
-    public int updateBalance(Long prodId,BigDecimal balance){
-        return productRepository.updateBalance(balance,prodId);
+    public void updateBalance(Long prodId,BigDecimal balance){
+        productRepository.updateBalance(balance,prodId);
     }
 }
 

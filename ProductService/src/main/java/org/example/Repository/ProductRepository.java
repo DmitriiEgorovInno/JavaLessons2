@@ -18,12 +18,12 @@ import java.util.Optional;
 public interface ProductRepository extends JpaRepository<Product,Long> {
     Optional<Product> findById(Long id);
 
-    Product findByUserAndAccount(User user,String account);
+    Optional<Product> findByAccount(String account);
 
     List<Product> findByUser(User user);
 
     @Modifying
     @Transactional
     @Query(value = "update products set balance = :balance where product_id = :prodId", nativeQuery = true)
-    int updateBalance(@Param("balance") BigDecimal balance,@Param("prodId") Long prodId);
+    void updateBalance(@Param("balance") BigDecimal balance,@Param("prodId") Long prodId);
 }

@@ -1,6 +1,5 @@
 package org.example.model;
 
 
-public record ErrorResponse(String message) {
-
+public record ErrorResponse(String message,String externalSystemcode) {
 }
